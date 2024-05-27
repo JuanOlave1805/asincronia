@@ -11,7 +11,8 @@ let response = await fetch('user.json'); //Declaramos una variable llamada repon
   let respuestGithub = await fetch(`https://api.github.com/users/${user.name}/repos`);  //Declaramos respuestGithub el cual le asignamos una promesa mediante el await. Esta promesa tendria como fin buscar directamente en la api de github mediante un link dentro de backflips para poder hacer interpoblacion buscar un perfil de github.
   //"${user.name}" esta parte del codigo toma de la variable "user" todas las claves de nombre "name" del json. Si la promesa await retorna true ejecuta la siguiente promesa
   let usuariogithub = await respuestGithub.json();  //Declaramos usuariogithub el cual le asignamos una promesa con el await. Esta promesa lo que hace es buscar todos los repositorios publicos encontrados en dicho perfil ya consultado en la promesa anterior. Se le coloca el .json para indicar que es una funcion del fetch hecho anteriormente. Si retorna true se terminaria el async await ya que todas las promesas fueron completadas. El resultado retornado en consola es todos repositorios publicos del usuario mediante un array
-  console.log(usuariogithub)
+  // console.log(respuestGithub)
+  // console.log(usuariogithub)
   usuariogithub.forEach(element => {   //Se usa el forEach para iterar sobre todos los repositorios, usando la funcion flecha toma un parametro el cual es usuariogithub.
   //El forEach funciona como un for solo que es para arreglos; es decir itera todos los datos almacenados en el array usuariogithub
     if (element.name === "ejercicios_js") {   //usando una condicion if buscamos que el repositorio con el nombre (ejercicios_js) con el igualacion estrictamente igual.
@@ -20,7 +21,7 @@ let response = await fetch('user.json'); //Declaramos una variable llamada repon
     }
   });
 
-// let data = usuariogithub.filter(filtrar)
-// console.log(data)
-// console.log(usuariogithub)
+// let data = usuariogithub.filter(filtrar)  // usamos la funcion filtro declarada anteriormente y se realiza el filtro buscando el repositorio "ejercicios_js" y al encontrar el primer resultado termina de filtrar
+// console.log(data)  // Imprime el resultado obtenido en el filtro anterior
+// console.log(usuariogithub) 
 })();  // Colocamos al final los parentesis para hacer que sea la funcion autoejecutable

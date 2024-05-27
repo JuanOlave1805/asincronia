@@ -1,17 +1,35 @@
-function leer() {  //Declaramos la funcion leer
-  fetch('user.json')  //Declaramos una variable llamada reponse la cual se le asigna el await para que se cumpla la promesa que en este caso seria que mediante el fetch leyera el archivo y retornara true para ejecutar la siguiente promesa.
-    .then((response) => {  //Usamos una funcion flecha dentro de una concadenacion de promesas la cual para que se cumpla la promesa que en este caso seria extraer los datos almacenados en el archivo JSON que hemos leido anteriormente. Se le coloca el .json para indicar que es una funcion del fetch hecho anteriormente, (reponse es la variable donde hemos leido el archivo JSON). Si retorna true este await que es una promesa seguira con la siguiente promesa.
-      return response.json();
-    })
-    .then((datos) => {  //Usando la concadenacion de las promesas usamos nuevamente funcion flecha y se ejecuta un console.table
-      console.table(datos.users.filter(user => user.aprendiz === true).map(user => ({
-        name: user.name,
-        avatar: user.avatar
-      })));  //Se usa un console.table donde se realiza un filtro el cual consultara el parametro de aprendiz, si es true imprimira el nombre y el avatar del usuario.
-    })
-    .catch((error) => {  //Usamos un catch para mostrar si ahí algun error en las promesas
-      console.error('Error al leer el archivo JSON:', error); //Imprimira el mensaje y el error.
-    });
-}
+// Definimos una función llamada 'filtro' que toma un objeto 'x' y retorna true si 'x.aprendiz' es verdadero.
+const filtro = x => x.aprendiz;
 
-leer(); // Llamamos la funcion para que pueda ejecutarse automaticamente
+// Inicia una solicitud HTTP GET para obtener el archivo 'user.json'.
+fetch('user.json')
+  .then((response) => {
+    // Cuando la solicitud se completa, convierte la respuesta en un objeto JSON.
+    return response.json();
+  })
+  .then((datos) => {
+    // Filtra los usuarios obtenidos del archivo JSON, dejando solo aquellos que son aprendices.
+    let aprendices = datos.users.filter(filtro);
+    
+    // Crea un array de promesas, donde cada promesa obtiene datos adicionales del usuario desde la API de GitHub.
+    let promesas = aprendices.map((aprendiz) => {
+      return fetch(`https://api.github.com/users/${aprendiz.user}`)
+        .then((respuestaGit) => respuestaGit.json())  // Convierte la respuesta de GitHub en un objeto JSON.
+        .then((usuarioGit) => ({
+          // Retorna un objeto con el nombre del aprendiz y la URL de su avatar de GitHub.
+          name: aprendiz.name,  // Aquí usamos el nombre del aprendiz del archivo original 'user.json'.
+          avatar: usuarioGit.avatar_url  // URL del avatar obtenida desde la respuesta de GitHub.
+        }));
+    });
+    
+    // Retorna una promesa que se resuelve cuando todas las promesas en el array 'promesas' se hayan resuelto.
+    return Promise.all(promesas);
+  })
+  .then((aprendicesCompletos) => {
+    // Cuando todas las promesas se hayan resuelto, muestra los datos completos en la consola en forma de tabla.
+    console.table(aprendicesCompletos);
+  })
+  .catch((error) => {
+    // Si ocurre algún error en cualquier parte de la cadena de promesas, se captura aquí y se muestra en la consola.
+    console.error('Error:', error);
+  }); 
